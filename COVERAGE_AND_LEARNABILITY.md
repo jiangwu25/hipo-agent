@@ -132,4 +132,4 @@ Mind2Web：每个网站平均 3.7 道题（HANDOFF.md），复用机会比 WebAr
 
 ---
 
-脚本：题集结构与可学性统计见本次会话生成的临时脚本逻辑，等价于 `scripts/eval_retrieval_suite.py` 的 GT-A/GT-B 标签加 `runs/*/events.jsonl` 的 wa_task 事件；链条数据来自 `scripts/wa_chain.py` 同款的事件抽取（CASE_STUDIES.md）。
+脚本：`scripts/coverage_learnability.py`（题集结构、可学性统计、每个 run 的题数；依赖 `scripts/eval_retrieval_suite.py` 产出的 `runs/retrieval_suite_wa.json` 里的 GT-A/GT-B 标签）。三条链的逐题数据来自各 run 的 `events.jsonl`（wa_task / wa_retrieve / wa_write_l2 / wa_judge 事件），完整版见 CASE_STUDIES.md。
