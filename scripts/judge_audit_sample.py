@@ -32,8 +32,8 @@ with open('judge_audit/sample_200.jsonl', 'w') as f:
     for s in sample: f.write(json.dumps(s, ensure_ascii=False) + '\n')
 def steps_text(s): return " || ".join(f"[{x['step']}] {x['thought']} -> {x['action']} @ {x['url'].split('//')[-1][:60]}" for x in s['steps'])
 with open('judge_audit/annotation_sheet.csv', 'w', newline='') as f:
-    w = csv.writer(f); w.writerow(['sample_id', 'site', 'task', 'reference_answer', 'official_grader', 'agent_final_answer', 'n_steps', 'trajectory (step] thought -> action @ url)', 'A_label', 'A_evidence', 'B_label', 'B_evidence'])
-    for s in sample: w.writerow([s['sample_id'], s['site'], s['intent'], json.dumps(s['reference'], ensure_ascii=False), 'CORRECT', s['final_answer'], s['n_steps'], steps_text(s), '', '', '', ''])
+    w = csv.writer(f); w.writerow(['sample_id', 'site', 'task', 'eval_type', 'text_answer_required', 'reference_answer', 'official_grader', 'agent_final_answer', 'n_steps', 'trajectory (step] thought -> action @ url)', 'A_label', 'A_evidence', 'B_label', 'B_evidence'])
+    for s in sample: w.writerow([s['sample_id'], s['site'], s['intent'], '+'.join(s['eval_types']), 'yes' if 'string_match' in s['eval_types'] else 'no (state-changing / URL task)', json.dumps(s['reference'], ensure_ascii=False), 'CORRECT', s['final_answer'] or '(no answer given)', s['n_steps'], steps_text(s), '', '', '', ''])
 with open('judge_audit/answer_key.csv', 'w', newline='') as f:
     w = csv.writer(f); w.writerow(['sample_id', 'judge_outcome', 'judge_reason']); [w.writerow([s['sample_id'], s['judge_outcome'], s['judge_reason']]) for s in sample]
 with open('judge_audit/sampling_table.md', 'w') as f:
