@@ -5,9 +5,10 @@ Human label = A when A==B; disagreements and 'unsure' are excluded from precisio
 import csv, json, collections
 key = {r['sample_id']: r for r in csv.DictReader(open('judge_audit/answer_key.csv'))}
 site_of = {json.loads(l)['sample_id']: json.loads(l)['site'] for l in open('judge_audit/sample_200.jsonl')}
-A = {r['编号']: r for r in csv.DictReader(open('judge_audit/打分表_A.csv'))}; B = {r['编号']: r for r in csv.DictReader(open('judge_audit/打分表_B.csv'))}
-rows = [dict(sample_id=k, site=site_of[k], A_label=A[k]['判断（正常/蒙对/不确定）'], B_label=B.get(k, {}).get('判断（正常/蒙对/不确定）', '')) for k in A]
-def norm(x): x = (x or '').strip().lower(); return {'正常': 'genuine', '正常成功': 'genuine', '蒙对': 'fluke', '不确定': 'unsure', '无法判断': 'unsure'}.get(x, x)
+COL = '你的判断（真做出来的 / 碰巧对了 / 看不出来）'
+A = {r['卡片编号']: r for r in csv.DictReader(open('judge_audit/打分表_A.csv'))}; B = {r['卡片编号']: r for r in csv.DictReader(open('judge_audit/打分表_B.csv'))}
+rows = [dict(sample_id=k, site=site_of[k], A_label=A[k][COL], B_label=B.get(k, {}).get(COL, '')) for k in A]
+def norm(x): x = (x or '').strip().lower(); return {'真做出来的': 'genuine', '正常': 'genuine', '正常成功': 'genuine', '碰巧对了': 'fluke', '蒙对': 'fluke', '看不出来': 'unsure', '不确定': 'unsure', '无法判断': 'unsure'}.get(x, x)
 def kappa(a, b):
     n = len(a); po = sum(x == y for x, y in zip(a, b)) / n; ca, cb = collections.Counter(a), collections.Counter(b)
     pe = sum(ca[k] * cb[k] for k in set(a) | set(b)) / n / n; return (po - pe) / (1 - pe) if pe < 1 else 1.0
