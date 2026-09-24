@@ -1,11 +1,13 @@
-"""Score the human audit against the judge. Reads judge_audit/annotation_sheet.csv (A_label/B_label filled with
-one of: genuine | fluke | unsure) and judge_audit/answer_key.csv. Reports per site and pooled: n, judge-flagged flukes,
+"""Score the human audit against the judge. Reads judge_audit/打分表_A.csv and 打分表_B.csv (判断 = 正常/蒙对/不确定)
+and judge_audit/answer_key.csv. Reports per site and pooled: n, judge-flagged flukes,
 human flukes, precision/recall of judge fluke detection (human = ground truth), A/B agreement, Cohen's kappa.
 Human label = A when A==B; disagreements and 'unsure' are excluded from precision/recall and counted separately."""
-import csv, collections
+import csv, json, collections
 key = {r['sample_id']: r for r in csv.DictReader(open('judge_audit/answer_key.csv'))}
-rows = list(csv.DictReader(open('judge_audit/annotation_sheet.csv')))
-def norm(x): x = (x or '').strip().lower(); return {'正常成功': 'genuine', '蒙对': 'fluke', '无法判断': 'unsure'}.get(x, x)
+site_of = {json.loads(l)['sample_id']: json.loads(l)['site'] for l in open('judge_audit/sample_200.jsonl')}
+A = {r['编号']: r for r in csv.DictReader(open('judge_audit/打分表_A.csv'))}; B = {r['编号']: r for r in csv.DictReader(open('judge_audit/打分表_B.csv'))}
+rows = [dict(sample_id=k, site=site_of[k], A_label=A[k]['判断（正常/蒙对/不确定）'], B_label=B.get(k, {}).get('判断（正常/蒙对/不确定）', '')) for k in A]
+def norm(x): x = (x or '').strip().lower(); return {'正常': 'genuine', '正常成功': 'genuine', '蒙对': 'fluke', '不确定': 'unsure', '无法判断': 'unsure'}.get(x, x)
 def kappa(a, b):
     n = len(a); po = sum(x == y for x, y in zip(a, b)) / n; ca, cb = collections.Counter(a), collections.Counter(b)
     pe = sum(ca[k] * cb[k] for k in set(a) | set(b)) / n / n; return (po - pe) / (1 - pe) if pe < 1 else 1.0
