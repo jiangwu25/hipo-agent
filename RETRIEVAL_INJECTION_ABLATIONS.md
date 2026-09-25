@@ -12,7 +12,7 @@
 
 ### 第二段 · SWE-bench Verified（2026-07-13，django，claude-haiku-4-5，冻结 243 条库，同一批 114 道留出题，官方 harness 真值）——三种注入方式的正式消融
 
-同一个库、同一批题、每题 5 次尝试、检索 k=4、scope=repo，只换注入方式：
+同一个库、同一批题、每题 1 次尝试（frozenmem 臂不写库，`n_traj` 强制为 1）、检索 k=4、scope=repo，只换注入方式：
 
 | 注入方式 | run 目录 | 解决 | 平均注入条数/题 | 有注入的题 |
 |---|---|---|---|---|
@@ -68,7 +68,7 @@ run 配置（来自各 run `events.jsonl` 的 run_start）：
 | l2only | 46 | 40.4% | 4.00 | 114 |
 | suconly | 50 | 43.9% | 4.00 | 114 |
 
-逐题（1 = 官方 harness 判 resolved；括号里是 frozenmem 臂该题注入的条数 / 5 次尝试里判官认为成功的次数）：
+逐题（1 = 官方 harness 判 resolved；括号里是 frozenmem 臂该题注入的条数 / 判官认为成功的尝试数，每题只有 1 次尝试）：
 
 | instance | nomem | plain | gate | attend | l1only | l2only | suconly |
 |---|---|---|---|---|---|---|---|
